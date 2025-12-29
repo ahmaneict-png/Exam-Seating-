@@ -1,0 +1,5 @@
+{
+  "name": "without10th seating",
+  "description": "An application to automatically generate examination seating arrangements based on class batches, pairing rules, and room capacity. It provides detailed room-wise reports and allows exporting to PDF and Excel formats.",
+  "requestFramePermissions": []
+}
