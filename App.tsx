@@ -13,7 +13,6 @@ const App: React.FC = () => {
       if (savedBatches) {
         const parsed = JSON.parse(savedBatches);
         if (Array.isArray(parsed) && parsed.length > 0) {
-            // Ensure older saved data gets isActive: true if it doesn't have it
             return parsed.map(b => ({ ...b, isActive: b.isActive !== undefined ? b.isActive : true }));
         }
       }
@@ -38,6 +37,8 @@ const App: React.FC = () => {
   });
   
   const [benchesPerRoom, setBenchesPerRoom] = useState<number>(31);
+  const [examName, setExamName] = useState<string>('प्रथम चाचणी परीक्षा');
+  const [academicYear, setAcademicYear] = useState<string>('2024-25');
   const [report, setReport] = useState<GeneratedReport | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +57,6 @@ const App: React.FC = () => {
     setIsLoading(true);
     setReport(null);
     
-    // Check if at least one batch is active
     if (!batches.some(b => b.isActive)) {
       setError("Please enable (check) at least one class batch to generate arrangement.");
       setIsLoading(false);
@@ -65,7 +65,7 @@ const App: React.FC = () => {
 
     try {
       setTimeout(() => {
-        const generatedReport = generateSeating(batches, benchesPerRoom);
+        const generatedReport = generateSeating(batches, benchesPerRoom, examName, academicYear);
         setReport(generatedReport);
         setIsLoading(false);
       }, 500);
@@ -88,6 +88,10 @@ const App: React.FC = () => {
           setBatches={setBatches}
           benchesPerRoom={benchesPerRoom}
           setBenchesPerRoom={setBenchesPerRoom}
+          examName={examName}
+          setExamName={setExamName}
+          academicYear={academicYear}
+          setAcademicYear={setAcademicYear}
           onGenerate={handleGenerate}
           isLoading={isLoading}
         />
@@ -110,7 +114,7 @@ const App: React.FC = () => {
              <div className="flex justify-center items-center h-96 bg-white rounded-xl shadow-md p-4">
               <div className="text-center text-slate-500">
                 <h3 className="text-2xl font-semibold">Ready to Generate</h3>
-                <p className="mt-2">Enable class batches, choose capacity, and click "Generate" to see the results here.</p>
+                <p className="mt-2">Configure exam details and batches, then click "Generate".</p>
               </div>
             </div>
           )}

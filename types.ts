@@ -40,4 +40,6 @@ export interface GeneratedReport {
   arrangement: RoomArrangement[];
   summary: RoomSummary[];
   maxBenches: number;
+  examName: string;
+  academicYear: string;
 }

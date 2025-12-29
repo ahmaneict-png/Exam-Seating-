@@ -24,8 +24,12 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ report }) => {
   ];
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md">
-      <h2 className="text-2xl font-bold mb-4 text-slate-700">3. Generated Arrangement</h2>
+    <div className="bg-white p-6 rounded-xl shadow-md border-t-4 border-blue-500">
+      <div className="mb-6 pb-4 border-b border-slate-100">
+        <h2 className="text-2xl font-bold text-slate-800">{report.examName}</h2>
+        <p className="text-blue-600 font-medium tracking-wide">शैक्षणिक वर्ष: {report.academicYear}</p>
+      </div>
+
       <div className="border-b border-slate-200">
         <nav className="-mb-px flex space-x-6" aria-label="Tabs">
           {tabs.map((tab) => (

@@ -30,7 +30,7 @@ const parseBatchesToStudents = (batches: ClassBatch[]): Map<string, Student[]> =
   return studentsByStandard;
 };
 
-const formatBatchSummaries = (students: Student[], batches: ClassBatch[], roomIndex: number, allRooms: Student[][]): BatchSummary[] => {
+const formatBatchSummaries = (students: Student[], batches: ClassBatch[]): BatchSummary[] => {
   const grouped = new Map<string, number[]>();
   students.forEach(s => {
     if (!grouped.has(s.className)) grouped.set(s.className, []);
@@ -58,7 +58,7 @@ const formatBatchSummaries = (students: Student[], batches: ClassBatch[], roomIn
   });
 };
 
-export const generateSeating = (batches: ClassBatch[], benchesPerRoom: number): GeneratedReport => {
+export const generateSeating = (batches: ClassBatch[], benchesPerRoom: number, examName: string, academicYear: string): GeneratedReport => {
   const studentsByStandard = parseBatchesToStudents(batches);
   const is10thActive = batches.some(b => b.isActive && getStandardFromClassName(b.className) === '10th');
   const finalRoomsLeft: Student[][] = [];
@@ -72,7 +72,6 @@ export const generateSeating = (batches: ClassBatch[], benchesPerRoom: number): 
     const usedInRoom = new Map<string, number>();
 
     for (let bench = 0; bench < benchesPerRoom; bench++) {
-      // Logic for Seat 1 (Left)
       const s1Priority = ['10th', '9th', '8th', '7th', '6th', '5th'];
       const s1 = s1Priority.find(std => studentsByStandard.get(std)!.length > 0 && (usedInRoom.get(std) || 0) < benchesPerRoom);
       
@@ -81,7 +80,6 @@ export const generateSeating = (batches: ClassBatch[], benchesPerRoom: number): 
         currentLeft.push(student);
         usedInRoom.set(s1, (usedInRoom.get(s1) || 0) + 1);
         
-        // Logic for Seat 2 (Right)
         const partnerMap: Record<string, string> = { '10th': '9th', '9th': '10th', '8th': '7th', '7th': '8th', '6th': '5th', '5th': '6th' };
         let s2: string | undefined;
 
@@ -91,7 +89,6 @@ export const generateSeating = (batches: ClassBatch[], benchesPerRoom: number): 
                ? pref 
                : s1Priority.find(std => std !== s1 && studentsByStandard.get(std)!.length > 0 && (usedInRoom.get(std) || 0) < benchesPerRoom);
         } else {
-          // Without 10th: Chain logic to fill bulks
           s2 = s1Priority.find(std => std !== s1 && studentsByStandard.get(std)!.length > 0 && (usedInRoom.get(std) || 0) < benchesPerRoom);
         }
 
@@ -101,7 +98,6 @@ export const generateSeating = (batches: ClassBatch[], benchesPerRoom: number): 
           usedInRoom.set(s2, (usedInRoom.get(s2) || 0) + 1);
         }
       } else {
-          // If no s1 but still students left for right side (unlikely but safe)
           const s2Only = s1Priority.find(std => studentsByStandard.get(std)!.length > 0 && (usedInRoom.get(std) || 0) < benchesPerRoom);
           if (s2Only) {
               currentRight.push(studentsByStandard.get(s2Only)!.shift()!);
@@ -117,8 +113,8 @@ export const generateSeating = (batches: ClassBatch[], benchesPerRoom: number): 
     const rightStudents = finalRoomsRight[idx] || [];
     return {
       roomNumber: idx + 1,
-      leftSide: formatBatchSummaries(leftStudents, batches, idx, finalRoomsLeft),
-      rightSide: formatBatchSummaries(rightStudents, batches, idx, finalRoomsRight),
+      leftSide: formatBatchSummaries(leftStudents, batches),
+      rightSide: formatBatchSummaries(rightStudents, batches),
       leftTotal: leftStudents.length,
       rightTotal: rightStudents.length,
       total: leftStudents.length + rightStudents.length
@@ -134,5 +130,5 @@ export const generateSeating = (batches: ClassBatch[], benchesPerRoom: number): 
     return { roomNumber: room.roomNumber, total: room.total, counts };
   });
 
-  return { arrangement, summary, maxBenches: benchesPerRoom };
+  return { arrangement, summary, maxBenches: benchesPerRoom, examName, academicYear };
 };
